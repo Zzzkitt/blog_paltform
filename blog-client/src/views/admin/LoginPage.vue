@@ -3,36 +3,36 @@
     <el-card class="login-card">
       <h2 class="title">博客后台管理系统</h2>
       <el-form
-        ref="formRef"
-        :model="form"
-        :rules="rules"
-        label-width="0"
-        @keyup.enter="handleLogin"
+          ref="formRef"
+          :model="form"
+          :rules="rules"
+          label-width="0"
+          @keyup.enter="handleLogin"
       >
         <el-form-item prop="username">
           <el-input
-            v-model="form.username"
-            placeholder="用户名"
-            :prefix-icon="User"
-            size="large"
+              v-model="form.username"
+              placeholder="用户名"
+              :prefix-icon="User"
+              size="large"
           />
         </el-form-item>
         <el-form-item prop="password">
           <el-input
-            v-model="form.password"
-            placeholder="密码"
-            :prefix-icon="Lock"
-            size="large"
-            show-password
+              v-model="form.password"
+              placeholder="密码"
+              :prefix-icon="Lock"
+              size="large"
+              show-password
           />
         </el-form-item>
         <el-form-item>
           <el-button
-            type="primary"
-            size="large"
-            :loading="loading"
-            style="width:100%"
-            @click="handleLogin"
+              type="primary"
+              size="large"
+              :loading="loading"
+              style="width:100%"
+              @click="handleLogin"
           >
             {{ loading ? '登录中...' : '登 录' }}
           </el-button>
@@ -95,15 +95,51 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f0f2f5;
 }
+
 .login-card {
   width: 420px;
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eaeaea;
 }
+
 .title {
   text-align: center;
-  margin-bottom: 24px;
-  color: #333;
+  margin-bottom: 28px;
+  color: #1f2f3a;
+  font-weight: 500;
+  font-size: 24px;
+  letter-spacing: 1px;
+}
+
+/* 可选：微调输入框和按钮样式，保持与原 Element Plus 风格一致但更细腻 */
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+:deep(.el-input__wrapper:hover) {
+  border-color: #c0c4cc;
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  border-color: #409eff;
+  box-shadow: 0 0 0 1px #409eff;
+}
+
+:deep(.el-button--primary) {
+  background-color: #409eff;
+  border-color: #409eff;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
+  transform: translateY(-1px);
 }
 </style>
