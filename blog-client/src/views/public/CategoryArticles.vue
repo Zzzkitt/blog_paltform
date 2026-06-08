@@ -1,32 +1,23 @@
 <template>
   <div class="container">
     <div class="main-layout">
-      <!-- 文章列表 -->
       <div class="content-area">
-        <!-- 置顶文章 -->
-        <div v-if="topArticles.length" class="top-section">
-          <h2 class="section-title">📌 置顶文章</h2>
-          <ArticleCard v-for="a in topArticles" :key="a.id" :article="a" />
-        </div>
-
-        <h1 class="page-title">最新文章</h1>
+        <h1 class="page-title">分类：{{ route.params.slug }}</h1>
 
         <el-skeleton :loading="loading" animated :rows="5">
           <template #default>
             <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
-            <p v-if="!articles.length && !topArticles.length && !loading" class="empty-text">暂无文章</p>
+            <el-empty v-if="!articles.length && !loading" description="该分类暂无文章" />
             <Pagination
               v-if="total > 0"
               v-model="page"
               :total="total"
-              :page-size="pageSize"
-              @change="fetchArticles"
+              @change="fetchData"
             />
           </template>
         </el-skeleton>
       </div>
 
-      <!-- 侧边栏 -->
       <Sidebar
         :categories="categories"
         :tags="tags"
@@ -38,25 +29,25 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import ArticleCard from '@/components/ArticleCard.vue'
 import Pagination from '@/components/Pagination.vue'
 import Sidebar from '@/components/Sidebar.vue'
-import { getArticles, getCategories, getTags, getTopArticles } from '@/api/public'
+import { getCategoryArticles, getCategories, getTags, getTopArticles } from '@/api/public'
 
+const route = useRoute()
+const loading = ref(true)
 const articles = ref([])
-const topArticles = ref([])
 const categories = ref([])
 const tags = ref([])
 const recentArticles = ref([])
-const loading = ref(false)
 const page = ref(1)
-const pageSize = ref(10)
 const total = ref(0)
 
-const fetchArticles = async () => {
+const fetchData = async () => {
   loading.value = true
   try {
-    const res = await getArticles({ page: page.value, pageSize: pageSize.value })
+    const res = await getCategoryArticles(route.params.slug, { page: page.value, pageSize: 10 })
     articles.value = res.data.records
     total.value = res.data.total
   } finally {
@@ -66,13 +57,10 @@ const fetchArticles = async () => {
 
 onMounted(async () => {
   await Promise.all([
-    fetchArticles(),
-    getTopArticles().then(r => {
-      topArticles.value = r.data
-      recentArticles.value = r.data
-    }).catch(() => {}),
+    fetchData(),
     getCategories().then(r => categories.value = r.data).catch(() => {}),
     getTags().then(r => tags.value = r.data).catch(() => {}),
+    getTopArticles().then(r => recentArticles.value = r.data).catch(() => {}),
   ])
 })
 </script>
@@ -81,24 +69,5 @@ onMounted(async () => {
 .page-title {
   font-size: 24px;
   margin-bottom: 20px;
-  color: #303133;
-}
-
-.section-title {
-  font-size: 18px;
-  margin-bottom: 12px;
-  color: #e6a23c;
-}
-
-.top-section {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid #e6a23c;
-}
-
-.empty-text {
-  text-align: center;
-  color: #999;
-  padding: 40px 0;
 }
 </style>

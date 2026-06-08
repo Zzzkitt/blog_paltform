@@ -3,20 +3,22 @@
 ## 一、项目概述
 
 ### 技术栈
-| 层级 | 技术 |
-|------|------|
-| 后端框架 | Spring Boot 3.x + JDK 17 |
-| ORM | Spring Data JPA (Hibernate) |
-| 数据库 | MySQL 8.x |
-| 安全认证 | Spring Security + JWT |
-| 前端框架 | Vue 3 + Vite |
-| UI 组件库 | Element Plus |
-| 状态管理 | Pinia |
-| 前端路由 | Vue Router 4 |
-| 评论系统 | Giscus（第三方，基于 GitHub Discussions） |
-| 部署 | Docker + Docker Compose + CI/CD（GitHub Actions） |
+
+| 层级     | 技术                                              |
+| ------ | ----------------------------------------------- |
+| 后端框架   | Spring Boot 3.x + JDK 17                        |
+| ORM    | Spring Data JPA (Hibernate)                     |
+| 数据库    | MySQL 8.x                                       |
+| 安全认证   | Spring Security + JWT                           |
+| 前端框架   | Vue 3 + Vite                                    |
+| UI 组件库 | Element Plus                                    |
+| 状态管理   | Pinia                                           |
+| 前端路由   | Vue Router 4                                    |
+| 评论系统   | Giscus（第三方，基于 GitHub Discussions）               |
+| 部署     | Docker + Docker Compose + CI/CD（GitHub Actions） |
 
 ### 项目结构（Monorepo）
+
 ```
 blog-platform/
 ├── blog-server/          # Spring Boot 后端
@@ -63,6 +65,7 @@ blog-platform/
 ### ER 图（表结构）
 
 #### 1. 用户表 `blog_user`
+
 ```sql
 CREATE TABLE blog_user (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -78,8 +81,9 @@ CREATE TABLE blog_user (
 ```
 
 #### 2. 文章表 `article`
+
 ```sql
-CREATE TABLE article (
+    CREATE TABLE article (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     title         VARCHAR(200)   NOT NULL,
     summary       VARCHAR(500),
@@ -98,6 +102,7 @@ CREATE TABLE article (
 ```
 
 #### 3. 分类表 `category`
+
 ```sql
 CREATE TABLE category (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -110,6 +115,7 @@ CREATE TABLE category (
 ```
 
 #### 4. 标签表 `tag`
+
 ```sql
 CREATE TABLE tag (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -120,6 +126,7 @@ CREATE TABLE tag (
 ```
 
 #### 5. 文章-标签关联表 `article_tag`
+
 ```sql
 CREATE TABLE article_tag (
     article_id BIGINT NOT NULL,
@@ -131,6 +138,7 @@ CREATE TABLE article_tag (
 ```
 
 #### 6. 友链表 `friend_link`
+
 ```sql
 CREATE TABLE friend_link (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -145,6 +153,7 @@ CREATE TABLE friend_link (
 ```
 
 #### 7. 关于页面表 `about`
+
 ```sql
 CREATE TABLE about_info (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -154,6 +163,7 @@ CREATE TABLE about_info (
 ```
 
 #### 8. 网站设置表 `site_setting`
+
 ```sql
 CREATE TABLE site_setting (
     id    BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -167,6 +177,7 @@ CREATE TABLE site_setting (
 ## 三、后端 API 设计
 
 ### 基础响应格式
+
 ```json
 {
   "code": 200,
@@ -177,46 +188,47 @@ CREATE TABLE site_setting (
 
 ### 公开接口（无需认证）
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | /api/auth/login | 管理员登录，返回 JWT Token |
-| GET | /api/articles | 分页获取已发布文章列表 |
-| GET | /api/articles/{id} | 获取文章详情（公开） |
-| GET | /api/articles/archive | 获取文章归档（按年月分组） |
-| GET | /api/articles/search?q=xxx | 搜索文章 |
-| GET | /api/categories | 获取分类列表（含文章数） |
-| GET | /api/tags | 获取标签列表（含文章数） |
-| GET | /api/categories/{slug}/articles | 按分类获取文章 |
-| GET | /api/tags/{slug}/articles | 按标签获取文章 |
-| GET | /api/friend-links | 获取友链列表 |
-| GET | /api/about | 获取关于页面内容 |
-| GET | /api/site-info | 获取站点基本信息（标题、描述等） |
-| GET | /api/rss | 获取 RSS Feed（返回 XML） |
+| 方法   | 路径                              | 说明                  |
+| ---- | ------------------------------- | ------------------- |
+| POST | /api/auth/login                 | 管理员登录，返回 JWT Token  |
+| GET  | /api/articles                   | 分页获取已发布文章列表         |
+| GET  | /api/articles/{id}              | 获取文章详情（公开）          |
+| GET  | /api/articles/archive           | 获取文章归档（按年月分组）       |
+| GET  | /api/articles/search?q=xxx      | 搜索文章                |
+| GET  | /api/categories                 | 获取分类列表（含文章数）        |
+| GET  | /api/tags                       | 获取标签列表（含文章数）        |
+| GET  | /api/categories/{slug}/articles | 按分类获取文章             |
+| GET  | /api/tags/{slug}/articles       | 按标签获取文章             |
+| GET  | /api/friend-links               | 获取友链列表              |
+| GET  | /api/about                      | 获取关于页面内容            |
+| GET  | /api/site-info                  | 获取站点基本信息（标题、描述等）    |
+| GET  | /api/rss                        | 获取 RSS Feed（返回 XML） |
 
 ### 管理接口（需 JWT 认证，Header: `Authorization: Bearer <token>`）
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | /api/admin/articles | 新建文章 |
-| PUT | /api/admin/articles/{id} | 编辑文章 |
-| DELETE | /api/admin/articles/{id} | 删除文章 |
-| PATCH | /api/admin/articles/{id}/status | 修改文章状态（发布/草稿） |
-| GET | /api/admin/articles | 分页获取所有文章（含草稿） |
-| GET | /api/admin/articles/{id} | 获取文章详情（编辑用，含未发布） |
-| POST | /api/admin/categories | 新增分类 |
-| PUT | /api/admin/categories/{id} | 编辑分类 |
-| DELETE | /api/admin/categories/{id} | 删除分类 |
-| POST | /api/admin/tags | 新增标签 |
-| PUT | /api/admin/tags/{id} | 编辑标签 |
-| DELETE | /api/admin/tags/{id} | 删除标签 |
-| POST | /api/admin/friend-links | 新增友链 |
-| PUT | /api/admin/friend-links/{id} | 编辑友链 |
-| DELETE | /api/admin/friend-links/{id} | 删除友链 |
-| PUT | /api/admin/about | 更新关于页面 |
-| GET | /api/admin/dashboard | 获取仪表盘统计数据 |
-| POST | /api/admin/site-settings | 更新站点设置 |
+| 方法     | 路径                              | 说明               |
+| ------ | ------------------------------- | ---------------- |
+| POST   | /api/admin/articles             | 新建文章             |
+| PUT    | /api/admin/articles/{id}        | 编辑文章             |
+| DELETE | /api/admin/articles/{id}        | 删除文章             |
+| PATCH  | /api/admin/articles/{id}/status | 修改文章状态（发布/草稿）    |
+| GET    | /api/admin/articles             | 分页获取所有文章（含草稿）    |
+| GET    | /api/admin/articles/{id}        | 获取文章详情（编辑用，含未发布） |
+| POST   | /api/admin/categories           | 新增分类             |
+| PUT    | /api/admin/categories/{id}      | 编辑分类             |
+| DELETE | /api/admin/categories/{id}      | 删除分类             |
+| POST   | /api/admin/tags                 | 新增标签             |
+| PUT    | /api/admin/tags/{id}            | 编辑标签             |
+| DELETE | /api/admin/tags/{id}            | 删除标签             |
+| POST   | /api/admin/friend-links         | 新增友链             |
+| PUT    | /api/admin/friend-links/{id}    | 编辑友链             |
+| DELETE | /api/admin/friend-links/{id}    | 删除友链             |
+| PUT    | /api/admin/about                | 更新关于页面           |
+| GET    | /api/admin/dashboard            | 获取仪表盘统计数据        |
+| POST   | /api/admin/site-settings        | 更新站点设置           |
 
 ### API 基础路径配置
+
 所有接口统一前缀 `/api`，在 `application.yml` 中配置 `server.servlet.context-path`。
 
 ---
@@ -300,6 +312,7 @@ CREATE TABLE site_setting (
 ```
 
 ### 4.2 application.yml 配置
+
 ```yaml
 server:
   port: 8080
@@ -333,16 +346,19 @@ blog:
 ### 4.3 JWT 认证流程
 
 1. **JwtTokenProvider** — 工具类，负责生成 Token、解析 Token、验证 Token
+   
    - `generateToken(String username)`: 生成 JWT，subject 为用户名
    - `getUsernameFromToken(String token)`: 从 Token 提取用户名
    - `validateToken(String token)`: 验证 Token 是否有效（签名、过期时间）
 
 2. **JwtAuthenticationFilter** — 继承 `OncePerRequestFilter`
+   
    - 从请求头 `Authorization` 提取 Bearer Token
    - 验证 Token 有效性
    - 若有效，构建 `UsernamePasswordAuthenticationToken` 写入 `SecurityContextHolder`
 
 3. **SecurityConfig** — 继承 `SecurityFilterChain`
+   
    - 禁用 CSRF（前后端分离不需要）
    - 设置无状态 Session（`SessionCreationPolicy.STATELESS`）
    - 配置公开接口无需认证（`.requestMatchers("/api/auth/**", "/api/articles/**", "/api/categories/**", "/api/tags/**", "/api/friend-links/**", "/api/about/**", "/api/site-info/**", "/api/rss").permitAll()`）
@@ -350,6 +366,7 @@ blog:
    - 注册 `JwtAuthenticationFilter`
 
 4. **前端处理**
+   
    - 登录成功后，Token 存储在 `localStorage`
    - Axios 请求拦截器自动在 Header 添加 `Authorization: Bearer <token>`
    - Axios 响应拦截器检测 401 状态码，跳转到登录页
@@ -366,6 +383,7 @@ blog:
 ### 4.5 分页
 
 Spring Data JPA 的 `Pageable` + 自定义 `PageVO` 返回格式：
+
 ```json
 {
   "records": [...],
@@ -379,6 +397,7 @@ Spring Data JPA 的 `Pageable` + 自定义 `PageVO` 返回格式：
 ### 4.6 搜索实现
 
 采用 MySQL 全文检索（ngram 解析器，支持中文）：
+
 ```java
 @Query(value = "SELECT * FROM article WHERE MATCH(title, content) AGAINST(?1 IN BOOLEAN MODE) AND status = 'PUBLISHED'",
        nativeQuery = true)
@@ -388,6 +407,7 @@ Page<Article> searchByKeyword(String keyword, Pageable pageable);
 ### 4.7 RSS 生成
 
 使用 Rome 库，在 `RssController` 中生成 RSS 2.0 Feed：
+
 - 读取已发布文章列表
 - 构建 `SyndFeed` 对象（`SyndFeedImpl`）
 - 设置 title, link, description, entries
@@ -396,6 +416,7 @@ Page<Article> searchByKeyword(String keyword, Pageable pageable);
 ### 4.8 仪表盘统计（Dashboard）
 
 聚合查询：
+
 - 文章总数、已发布数、草稿数
 - 分类数量、标签数量
 - 最近7天/30天文章发布趋势
@@ -406,6 +427,7 @@ Page<Article> searchByKeyword(String keyword, Pageable pageable);
 ## 五、前端详细设计
 
 ### 5.1 依赖（package.json 核心依赖）
+
 ```json
 {
   "dependencies": {
@@ -467,6 +489,7 @@ const routes = [
 ```
 
 ### 5.3 全局路由守卫
+
 ```javascript
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
@@ -480,6 +503,7 @@ router.beforeEach((to, from, next) => {
 ### 5.4 组件划分
 
 **公共组件：**
+
 - `AppHeader.vue` — 前台顶部导航栏（logo、菜单、搜索框）
 - `AppFooter.vue` — 前台底部
 - `Sidebar.vue` — 前台侧边栏（个人简介、标签云、分类列表、最新文章）
@@ -489,10 +513,12 @@ router.beforeEach((to, from, next) => {
 - `BreadCrumb.vue` — 面包屑导航
 
 **后台布局：**
+
 - `AdminLayout.vue` — 侧边栏菜单 + 顶部导航栏 + 内容区
 - `AdminSidebar.vue` — 菜单导航（仪表盘、文章管理、分类、标签、友链、关于、设置）
 
 **后台页面：**
+
 - `LoginPage.vue` — 登录表单
 - `DashboardPage.vue` — 统计概览（文章数、分类数、访问量等卡片）
 - `ArticleList.vue` — 文章表格（分页、搜索过滤、批量操作）
@@ -552,6 +578,7 @@ VITE_GISCUS_CATEGORY = Announcements
 Giscus 是基于 GitHub Discussions 的评论系统，无需后端支持。
 
 ### 配置步骤
+
 1. 在 GitHub 上为博客仓库启用 Discussions
 2. 安装 [Giscus App](https://github.com/apps/giscus) 到该仓库
 3. 在 [giscus.app](https://giscus.app) 配置并获取 `data-repo`、`data-repo-id`、`data-category`、`data-category-id`
@@ -743,30 +770,30 @@ jobs:
 
 ### 第一阶段：项目初始化与基础框架（2-3天）
 
-- [ ] 创建 Monorepo 目录结构：`blog-server/` + `blog-client/`
-- [ ] **后端**：通过 Spring Initializr 生成 Spring Boot 3.x 项目
+- [x] 创建 Monorepo 目录结构：`blog-server/` + `blog-client/`
+- [x] **后端**：通过 Spring Initializr 生成 Spring Boot 3.x 项目
   - 引入 Web、JPA、MySQL、Security、Validation 依赖
   - 配置 `application.yml`（数据源、JPA、JWT）
   - 创建包结构：`config`、`controller`、`service`、`repository`、`entity`、`dto`、`vo`、`common`、`security`
   - 编写 `Result` 统一响应类
   - 编写 `GlobalExceptionHandler` 全局异常处理
-- [ ] **前端**：`npm create vite@latest blog-client -- --template vue` 初始化项目
+- [x] **前端**：`npm create vite@latest blog-client -- --template vue` 初始化项目
   - 安装 Vue Router、Pinia、Axios、Element Plus、dayjs
   - 配置 Vite 代理解决跨域（`vite.config.js` 中 proxy `/api`）
   - 封装 Axios 请求工具
   - 启动页 Hello World 测试前后端连通
-- [ ] 初始化 Git 仓库 + `.gitignore`（排除 `node_modules`、`target`、`.env`）
+- [x] 初始化 Git 仓库 + `.gitignore`（排除 `node_modules`、`target`、`.env`）
 
 ### 第二阶段：认证系统（2天）
 
-- [ ] **后端**
+- [x] **后端**
   - 编写 `User` 实体 + `UserRepository`
   - 编写 `JwtTokenProvider`（生成/解析/验证 Token）
   - 编写 `JwtAuthenticationFilter`
   - 编写 `SecurityConfig`（Spring Security 安全配置）
   - 编写 `AuthController`（`POST /api/auth/login`）
   - 数据库初始化 `DataInitializer`（`CommandLineRunner`，首次启动创建管理员账号）
-- [ ] **前端**
+- [x] **前端**
   - 创建 `LoginPage.vue`（登录表单，Element Plus 表单组件）
   - 创建 `authStore`（Pinia store，存储 token 和登录状态）
   - 路由守卫 `router.beforeEach`（未登录跳转登录页）
@@ -775,14 +802,14 @@ jobs:
 
 ### 第三阶段：文章管理（3-4天）
 
-- [ ] **后端**
+- [x] **后端**
   - 编写实体：`Article`、`Category`、`Tag` + 对应的 Repository
   - 编写 `ArticleService`（含分页、按分类/标签筛选、按状态筛选）
   - 编写 `CategoryService`、`TagService`
   - 编写管理端 Controller：`ArticleController`（CRUD + 状态切换）、`CategoryController`、`TagController`
   - 文章内容格式：接收 Markdown，存储 Markdown，暴露时同时返回 markdown 和 html（由后端 commonmark 转换）
   - 分类和标签的 slug 自动生成（中文拼音或英文）
-- [ ] **前端**
+- [x] **前端**
   - 创建 `AdminLayout.vue`（侧边栏菜单 + 内容区布局）
   - 创建 `ArticleList.vue`（Element Plus 表格 + 分页 + 搜索 + 状态筛选）
   - 创建 `ArticleEditor.vue`（集成 mavon-editor，标题、封面、分类、标签选择器）
@@ -832,13 +859,16 @@ jobs:
 ### 第七阶段：Docker + CI/CD 部署（2天）
 
 - [ ] 编写 `blog-server/Dockerfile`
+  
   ```dockerfile
   FROM eclipse-temurin:17-jre-alpine
   ARG JAR_FILE=target/*.jar
   COPY ${JAR_FILE} app.jar
   ENTRYPOINT ["java", "-jar", "/app.jar"]
   ```
+
 - [ ] 编写 `blog-client/Dockerfile`（多阶段构建：Node 构建 → Nginx 运行）
+  
   ```dockerfile
   FROM node:20-alpine AS builder
   WORKDIR /app
@@ -846,16 +876,21 @@ jobs:
   RUN npm install
   COPY . .
   RUN npm run build
-
+  
   FROM nginx:alpine
   COPY --from=builder /app/dist /usr/share/nginx/html
   EXPOSE 80
   CMD ["nginx", "-g", "daemon off;"]
   ```
+
 - [ ] 编写 `docker-compose.yml`（mysql + backend + frontend + nginx）
+
 - [ ] 编写 `.env.example`（列出所有环境变量模板）
+
 - [ ] 编写 Nginx 配置
+
 - [ ] 配置 GitHub Actions（SSH 部署到服务器或云主机）
+
 - [ ] 服务器初始化脚本（Docker 安装、防火墙设置）
 
 ### 第八阶段：优化与收尾（1-2天）

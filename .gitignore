@@ -15,4 +15,6 @@ Desktop.ini
 # Env (contains real secrets, never commit)
 .env
 .env.local
-.env.production.local
+.env.*.local
+.env.development
+.env.production

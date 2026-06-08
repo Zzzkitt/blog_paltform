@@ -9,6 +9,7 @@ import com.blog.blog.enums.ArticleStatus;
 import com.blog.blog.repository.ArticleRepository;
 import com.blog.blog.repository.CategoryRepository;
 import com.blog.blog.repository.TagRepository;
+import com.blog.blog.vo.ArchiveEntry;
 import com.blog.blog.vo.ArticleVO;
 import lombok.RequiredArgsConstructor;
 import org.commonmark.node.Node;
@@ -20,8 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -192,5 +192,75 @@ public class ArticleService {
     // 简单去除 HTML 标签（用于生成摘要）
     private String stripHtmlTags(String html) {
         return html.replaceAll("<[^>]*>", "").replaceAll("\\s+", " ").trim();
+    }
+
+    // ===== 公开查询方法 =====
+
+    // 分页查询已发布文章
+    @Transactional(readOnly = true)
+    public Page<ArticleVO> findPublished(Pageable pageable) {
+        return articleRepository.findByStatusOrderByCreatedAtDesc(ArticleStatus.PUBLISHED, pageable)
+                .map(this::convertToVO);
+    }
+
+    // 查询已发布文章详情（阅读数+1）
+    @Transactional
+    public ArticleVO findPublishedById(Long id) {
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("文章不存在"));
+        if (article.getStatus() != ArticleStatus.PUBLISHED) {
+            throw new RuntimeException("文章不存在");
+        }
+        article.setViewCount(article.getViewCount() + 1);
+        Article saved = articleRepository.save(article);
+        return convertToVO(saved);
+    }
+
+    // 查询置顶文章
+    @Transactional(readOnly = true)
+    public List<ArticleVO> findTopArticles() {
+        return articleRepository.findByIsTopTrueAndStatusOrderByCreatedAtDesc(
+                ArticleStatus.PUBLISHED, Pageable.unpaged())
+                .stream().map(this::convertToVO).collect(Collectors.toList());
+    }
+
+    // 获取文章归档（按年月分组）
+    @Transactional(readOnly = true)
+    public List<ArchiveEntry> findArchive() {
+        List<Article> articles = articleRepository.findByStatusAndPublishedAtBetween(
+                ArticleStatus.PUBLISHED,
+                LocalDateTime.of(2000, 1, 1, 0, 0),
+                LocalDateTime.now());
+        return articles.stream()
+                .collect(Collectors.groupingBy(
+                        a -> a.getPublishedAt().getYear() + "-" + String.format("%02d", a.getPublishedAt().getMonthValue()),
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ))
+                .entrySet().stream()
+                .map(entry -> new ArchiveEntry(entry.getKey(), entry.getValue().stream()
+                        .map(this::convertToVO).collect(Collectors.toList())))
+                .collect(Collectors.toList());
+    }
+
+    // 按分类 slug 查询已发布文章
+    @Transactional(readOnly = true)
+    public Page<ArticleVO> findByCategorySlug(String slug, Pageable pageable) {
+        return articleRepository.findByCategory_SlugAndStatusOrderByPublishedAtDesc(slug, ArticleStatus.PUBLISHED, pageable)
+                .map(this::convertToVO);
+    }
+
+    // 按标签 slug 查询已发布文章
+    @Transactional(readOnly = true)
+    public Page<ArticleVO> findByTagSlug(String slug, Pageable pageable) {
+        return articleRepository.findByTags_SlugAndStatusOrderByPublishedAtDesc(slug, ArticleStatus.PUBLISHED, pageable)
+                .map(this::convertToVO);
+    }
+
+    // 全文检索
+    @Transactional(readOnly = true)
+    public Page<ArticleVO> searchByKeyword(String keyword, Pageable pageable) {
+        return articleRepository.searchByKeyword(keyword, "PUBLISHED", pageable)
+                .map(this::convertToVO);
     }
 }

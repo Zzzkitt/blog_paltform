@@ -71,9 +71,6 @@ import { ElMessage } from 'element-plus'
 import { getById, create, update } from '@/api/article'
 import { getList as getCategoryList } from '@/api/category'
 import { getList as getTagList } from '@/api/tag'
-import mavonEditor from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
-
 const router = useRouter()
 const route = useRoute()
 const isEdit = !!route.params.id
