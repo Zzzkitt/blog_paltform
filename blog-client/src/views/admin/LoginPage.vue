@@ -114,32 +114,4 @@ const handleLogin = async () => {
   letter-spacing: 1px;
 }
 
-/* 可选：微调输入框和按钮样式，保持与原 Element Plus 风格一致但更细腻 */
-:deep(.el-input__wrapper) {
-  border-radius: 8px;
-  transition: all 0.2s;
-}
-
-:deep(.el-input__wrapper:hover) {
-  border-color: #c0c4cc;
-}
-
-:deep(.el-input__wrapper.is-focus) {
-  border-color: #409eff;
-  box-shadow: 0 0 0 1px #409eff;
-}
-
-:deep(.el-button--primary) {
-  background-color: #409eff;
-  border-color: #409eff;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-:deep(.el-button--primary:hover) {
-  background-color: #66b1ff;
-  border-color: #66b1ff;
-  transform: translateY(-1px);
-}
 </style>
